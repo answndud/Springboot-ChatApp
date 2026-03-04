@@ -20,15 +20,12 @@ import org.springframework.stereotype.Controller;
 @Slf4j
 public class ChatController {
 
-    private final RedisTemplate redisTemplate;
-
-    
+    private final RedisTemplate<String, Object> redisTemplate;
 
     // Send Message to the Clients
     @MessageMapping("/chat.sendChatMessage")
     public ChatMessage sendChatMessage(@Payload ChatMessage chatMessage) {
         chatMessage.setTimestamp(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
-        // Add logic to send message to Dragonfly DB Queue
         redisTemplate.convertAndSend("chat", chatMessage);
         return chatMessage;
     }
@@ -42,9 +39,7 @@ public class ChatController {
         chatMessage.setMessage(chatMessage.getUserName() + " joined the chat");
         chatMessage.setTimestamp(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
         log.info("user joined: {}", chatMessage.getUserName());
-        // send chat message back to the client with message type as join
         redisTemplate.convertAndSend("chat", chatMessage);
         return chatMessage;
     }
-    
 }
